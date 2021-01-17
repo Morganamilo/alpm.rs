@@ -11,10 +11,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: archlinux
+      image: archlinux:base-devel
     steps:
       - name: Install Packages
-        run: pacman -Syu rust clang gcc --noconfirm --needed
+        run: sudo pacman -Syu rust clang gcc --noconfirm --needed
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -26,19 +26,17 @@ jobs:
   test-git:
     runs-on: ubuntu-latest
     container:
-      image: archlinux
+      image: archlinux:base-devel
+      options: --privileged
     steps:
       - name: Install Packages
-        run: pacman -Syu rust curl clang git base-devel libarchive meson asciidoc doxygen --noconfirm fakechroot --needed
+        run: sudo pacman -Syu rust clang git --noconfirm --needed
 
       - name: Install Pacman-git
         run: |
           git clone https://aur.archlinux.org/pacman-git
-          chown -R nobody pacman-git
           cd pacman-git
-          sudo -u nobody makepkg --nocheck
-          sudo -u nobody makepkg --packagelist > list
-          yes | pacman -U $(cat list)
+          yes | makepkg -si --nocheck
 
       - name: Checkout
         uses: actions/checkout@v2
